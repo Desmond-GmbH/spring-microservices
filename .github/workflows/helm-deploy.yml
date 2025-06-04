@@ -46,4 +46,4 @@ jobs:
         run: helm upgrade --install api-gateway ./petapi-gateway
 
       - name: Deploy admin-server
-        run: helm upgrade --install admin-server ./admin-server
+        run: helm upgrade --install admin-server ./admin-server 
