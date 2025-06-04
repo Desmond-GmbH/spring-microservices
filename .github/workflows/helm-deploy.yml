@@ -1,0 +1,46 @@
+name: Deploy Microservices with Helm
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Deploy config-server
+        run: helm upgrade --install config-server ./config-server
+
+      - name: Deploy discovery-server
+        run: helm upgrade --install discovery-server ./discovery-server
+
+      - name: Deploy customers-service
+        run: helm upgrade --install customers-service ./customers-service
+
+      - name: Deploy visits-service
+        run: helm upgrade --install visits-service ./visit-service
+
+      - name: Deploy vets-service
+        run: helm upgrade --install vets-service ./vets-service
+
+      - name: Deploy genai-service
+        run: helm upgrade --install genai-service ./genai-service
+
+      - name: Deploy api-gateway
+        run: helm upgrade --install api-gateway ./petapi-gateway
+
+      - name: Deploy admin-server
+        run: helm upgrade --install admin-server ./admin-server
