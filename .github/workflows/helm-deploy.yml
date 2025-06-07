@@ -17,7 +17,7 @@ jobs:
         run: Set-ExecutionPolicy RemoteSigned -Scope Process -Force 
         shell: powershell
 
-      # Set up kubeconfig for kubectl and helm
+      # Set up kubeconfig for kubectl and helm 
       - name: Set up Kubeconfig 
         run: |
           $kubePath = "$env:USERPROFILE\.kube"
