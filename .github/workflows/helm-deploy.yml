@@ -15,7 +15,7 @@ jobs:
       # Allow PowerShell scripts to run in this session
       - name: Set PowerShell Execution Policy
         run: Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-        shell: pwsh
+        shell: powershell
 
       # Set up kubeconfig for kubectl and helm
       - name: Set up Kubeconfig
@@ -31,7 +31,7 @@ jobs:
           # Remove inheritance and grant user read/write permission
           icacls "$kubePath\config" /inheritance:r
           icacls "$kubePath\config" /grant:r "${env:USERNAME}:(R,W)"
-        shell: pwsh
+        shell: powershell
 
       # Docker login step
       - name: Log in to Docker Hub
@@ -39,38 +39,38 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         run: echo "$env:DOCKER_PASSWORD" | docker login -u "$env:DOCKER_USERNAME" --password-stdin
-        shell: pwsh
+        shell: powershell
 
       # Helm deployments for each microservice
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy discovery-server
         run: helm upgrade --install discovery-server ./discovery-server --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy customers-service
         run: helm upgrade --install customers-service ./customers-service --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy visits-service
         run: helm upgrade --install visits-service ./visits-service --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy vets-service
         run: helm upgrade --install vets-service ./vets-service --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy genai-service
         run: helm upgrade --install genai-service ./genai-service --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy api-gateway
         run: helm upgrade --install api-gateway ./petapi-gateway --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
 
       - name: Deploy admin-server
         run: helm upgrade --install admin-server ./admin-server --namespace default --create-namespace
-        shell: pwsh
+        shell: powershell
  
