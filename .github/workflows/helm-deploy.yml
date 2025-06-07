@@ -40,6 +40,8 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
+          Write-Output "DOCKER_USERNAME: $env:DOCKER_USERNAME"
+          Write-Output "DOCKER_TOKEN: $env:DOCKER_TOKEN"
           Write-Output $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USERNAME --password-stdin
 
       # Helm deployments for each microservice
