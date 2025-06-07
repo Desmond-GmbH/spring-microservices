@@ -38,7 +38,7 @@ jobs:
         shell: powershell
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USERNAME --password-stdin
 
