@@ -18,7 +18,7 @@ jobs:
         shell: powershell
 
       # Set up kubeconfig for kubectl and helm
-      - name: Set up Kubeconfig
+      - name: Set up Kubeconfig 
         run: |
           $kubePath = "$env:USERPROFILE\.kube"
           if (-Not (Test-Path -Path $kubePath)) {
