@@ -12,38 +12,65 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Allow PowerShell scripts to run in this session
+      - name: Set PowerShell Execution Policy
+        run: Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+        shell: pwsh
+
+      # Set up kubeconfig for kubectl and helm
       - name: Set up Kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+          $kubePath = "$env:USERPROFILE\.kube"
+          if (-Not (Test-Path -Path $kubePath)) {
+            New-Item -ItemType Directory -Path $kubePath | Out-Null
+          }
+          $kubeConfigContent = "${{ secrets.KUBE_CONFIG_DATA }}"
+          $kubeConfigContentBytes = [System.Convert]::FromBase64String($kubeConfigContent)
+          [System.IO.File]::WriteAllBytes("$kubePath\config", $kubeConfigContentBytes)
 
+          # Remove inheritance and grant user read/write permission
+          icacls "$kubePath\config" /inheritance:r
+          icacls "$kubePath\config" /grant:r "${env:USERNAME}:(R,W)"
+        shell: pwsh
+
+      # Docker login step
       - name: Log in to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        run: echo "$env:DOCKER_PASSWORD" | docker login -u "$env:DOCKER_USERNAME" --password-stdin
+        shell: pwsh
 
+      # Helm deployments for each microservice
       - name: Deploy config-server
-        run: helm upgrade --install config-server ./config-server 
+        run: helm upgrade --install config-server ./config-server --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy discovery-server
-        run: helm upgrade --install discovery-server ./discovery-server
+        run: helm upgrade --install discovery-server ./discovery-server --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy customers-service
-        run: helm upgrade --install customers-service ./customers-service
+        run: helm upgrade --install customers-service ./customers-service --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy visits-service
-        run: helm upgrade --install visits-service ./visit-service
+        run: helm upgrade --install visits-service ./visits-service --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy vets-service
-        run: helm upgrade --install vets-service ./vets-service
+        run: helm upgrade --install vets-service ./vets-service --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy genai-service
-        run: helm upgrade --install genai-service ./genai-service
+        run: helm upgrade --install genai-service ./genai-service --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy api-gateway
-        run: helm upgrade --install api-gateway ./petapi-gateway
+        run: helm upgrade --install api-gateway ./petapi-gateway --namespace default --create-namespace
+        shell: pwsh
 
       - name: Deploy admin-server
-        run: helm upgrade --install admin-server ./admin-server 
+        run: helm upgrade --install admin-server ./admin-server --namespace default --create-namespace
+        shell: pwsh
+ 
