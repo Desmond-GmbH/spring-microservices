@@ -33,17 +33,6 @@ jobs:
           icacls "$kubePath\config" /grant:r "${env:USERNAME}:(R,W)"
         shell: powershell
 
-      # Docker login step
-      - name: Log in to Docker Hub
-        shell: powershell
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          Write-Output "DOCKER_USERNAME: $env:DOCKER_USERNAME"
-          Write-Output "DOCKER_TOKEN: $env:DOCKER_TOKEN"
-          Write-Output $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USERNAME --password-stdin
-
       # Helm deployments for each microservice
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server --namespace default --create-namespace
