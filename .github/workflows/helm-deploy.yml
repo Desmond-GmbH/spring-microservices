@@ -38,7 +38,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: echo "$env:DOCKER_PASSWORD" | docker login -u "$env:DOCKER_USERNAME" --password-stdin
+        run: echo "$env:DOCKER_TOKEN" | docker login -u "$env:DOCKER_USERNAME" --password-stdin
         shell: powershell
 
       # Helm deployments for each microservice
