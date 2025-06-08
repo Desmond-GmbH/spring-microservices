@@ -2,67 +2,48 @@ name: Deploy Microservices with Helm
 
 on:
   push:
-    branches: [main] 
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Allow PowerShell scripts to run in this session
-      - name: Set PowerShell Execution Policy
-        run: Set-ExecutionPolicy RemoteSigned -Scope Process -Force 
-        shell: powershell
-
-      # Set up kubeconfig for kubectl and helm 
-      - name: Set up Kubeconfig 
+      - name: Set up Kubeconfig
         run: |
-          $kubePath = "$env:USERPROFILE\.kube"
-          if (-Not (Test-Path -Path $kubePath)) {
-            New-Item -ItemType Directory -Path $kubePath | Out-Null
-          }
-          $kubeConfigContent = "${{ secrets.KUBE_CONFIG_DATA }}"
-          $kubeConfigContentBytes = [System.Convert]::FromBase64String($kubeConfigContent)
-          [System.IO.File]::WriteAllBytes("$kubePath\config", $kubeConfigContentBytes)
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
 
-          # Remove inheritance and grant user read/write permission
-          icacls "$kubePath\config" /inheritance:r
-          icacls "$kubePath\config" /grant:r "${env:USERNAME}:(R,W)"
-        shell: powershell
+      - name: Log in to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-      # Helm deployments for each microservice
       - name: Deploy config-server
-        run: helm upgrade --install config-server ./config-server --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install config-server ./config-server 
 
       - name: Deploy discovery-server
-        run: helm upgrade --install discovery-server ./discovery-server --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install discovery-server ./discovery-server
 
       - name: Deploy customers-service
-        run: helm upgrade --install customers-service ./customers-service --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install customers-service ./customers-service
 
       - name: Deploy visits-service
-        run: helm upgrade --install visits-service ./visits-service --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install visits-service ./visit-service
 
       - name: Deploy vets-service
-        run: helm upgrade --install vets-service ./vets-service --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install vets-service ./vets-service
 
       - name: Deploy genai-service
-        run: helm upgrade --install genai-service ./genai-service --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install genai-service ./genai-service
 
       - name: Deploy api-gateway
-        run: helm upgrade --install api-gateway ./petapi-gateway --namespace default --create-namespace
-        shell: powershell
+        run: helm upgrade --install api-gateway ./petapi-gateway
 
       - name: Deploy admin-server
-        run: helm upgrade --install admin-server ./admin-server --namespace default --create-namespace
-        shell: powershell
- 
+        run: helm upgrade --install admin-server ./admin-server
