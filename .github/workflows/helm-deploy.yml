@@ -14,8 +14,7 @@ jobs:
 
       - name: Docker Login (Windows-safe)
         run: |
-          docker login -u "${env:DOCKER_USERNAME}" -p "${env:DOCKER_TOKEN}"
-        shell: pwsh
+          docker login -u "%env:DOCKER_USERNAME" -p "%env:DOCKER_TOKEN"
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
