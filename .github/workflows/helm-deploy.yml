@@ -17,7 +17,9 @@ jobs:
         run: |
           $username = "${{ secrets.DOCKER_USERNAME }}"
           $token = "${{ secrets.DOCKER_TOKEN }}"
-          echo $token | docker login -u $username --password-stdin
+          $secureToken = $token.Trim()  # remove any trailing newlines/spaces
+          Write-Host "Logging in as $username"
+          echo $secureToken | docker login -u $username --password-stdin
 
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server
