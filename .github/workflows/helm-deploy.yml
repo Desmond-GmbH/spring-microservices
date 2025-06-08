@@ -13,12 +13,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Docker Login (Windows-safe)
-        run: |
-         echo $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USERNAME --password-stdin
         shell: powershell
-        env:
-            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-            DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        run: |
+          $username = "${{ secrets.DOCKER_USERNAME }}"
+          $token = "${{ secrets.DOCKER_TOKEN }}"
+          echo $token | docker login -u $username --password-stdin
 
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server
