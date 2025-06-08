@@ -14,10 +14,11 @@ jobs:
 
       - name: Docker Login (Windows-safe)
         run: |
-          docker login -u "%env:DOCKER_USERNAME" -p "%env:DOCKER_TOKEN"
+         echo $env:DOCKER_TOKEN | docker login -u $env:DOCKER_USERNAME --password-stdin
+        shell: powershell
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server
