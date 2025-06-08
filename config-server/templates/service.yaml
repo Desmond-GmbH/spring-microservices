@@ -7,11 +7,9 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: 8888
       targetPort: http
       protocol: TCP
-      {{- if eq .Values.service.type "NodePort" }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
+      nodePort: 30088
   selector:
     {{- include "config-server.selectorLabels" . | nindent 4 }}
