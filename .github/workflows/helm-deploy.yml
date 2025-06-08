@@ -1,25 +1,27 @@
-name: Deploy Microservices with Helm
+name: Microservices with Helm
 
 on:
   push:
-    branches: [main]  
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on: self-hosted   
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Docker Login (Windows-safe)
+        run: |
+          docker login -u "${env:DOCKER_USERNAME}" -p "${env:DOCKER_TOKEN}"
+        shell: pwsh
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Deploy config-server
-        run: helm upgrade --install config-server ./config-server 
+        run: helm upgrade --install config-server ./config-server
 
       - name: Deploy discovery-server
         run: helm upgrade --install discovery-server ./discovery-server
@@ -28,7 +30,7 @@ jobs:
         run: helm upgrade --install customers-service ./customers-service
 
       - name: Deploy visits-service
-        run: helm upgrade --install visits-service ./visit-service
+        run: helm upgrade --install visits-service ./visits-service
 
       - name: Deploy vets-service
         run: helm upgrade --install vets-service ./vets-service
@@ -37,7 +39,8 @@ jobs:
         run: helm upgrade --install genai-service ./genai-service
 
       - name: Deploy api-gateway
-        run: helm upgrade --install api-gateway ./petapi-gateway
+        run: helm upgrade --install api-gateway ./api-gateway
 
       - name: Deploy admin-server
         run: helm upgrade --install admin-server ./admin-server
+
