@@ -20,6 +20,15 @@ jobs:
 
       - name: Deploy config-server
         run: helm upgrade --install config-server ./config-server
+      - name: Port-forward config-server and check health
+        run: |
+          # Start port forwarding in the background
+          kubectl port-forward svc/config-server 8888:8888 &
+          # Give some time for port forwarding to be ready
+          sleep 10
+          # Check the health endpoint
+          curl --fail http://localhost:8888/actuator/health  
+        
 
       - name: Deploy discovery-server
         run: helm upgrade --install discovery-server ./discovery-server
